@@ -53,6 +53,93 @@ defmodule ExAws.TransferTest do
       end
   end
 
+  describe "create_user/3 and create_user/4" do
+    test "builds correct operation struct with required params only" do
+      op = Transfer.create_user(
+        "s-1234567890abcdef0",
+        "newuser",
+        "arn:aws:iam::123456789012:role/my-role"
+      )
+
+      assert %ExAws.Operation.JSON{} = op
+      assert op.service == :transfer
+      assert op.data["ServerId"] == "s-1234567890abcdef0"
+      assert op.data["UserName"] == "newuser"
+      assert op.data["Role"] == "arn:aws:iam::123456789012:role/my-role"
+    end
+
+    test "sets correct x-amz-target header" do
+      op = Transfer.create_user("s-abc123", "user", "arn:aws:iam::123456789012:role/test")
+
+      assert {"x-amz-target", "TransferService.CreateUser"} in op.headers
+    end
+
+    test "pascalizes option keys" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        ssh_public_key_body: "ssh-rsa AAAAB3..."
+      )
+
+      assert op.data["SshPublicKeyBody"] == "ssh-rsa AAAAB3..."
+    end
+
+    test "converts home_directory_type atom to uppercase string" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        home_directory_type: :path
+      )
+
+      assert op.data["HomeDirectoryType"] == "PATH"
+
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        home_directory_type: :logical
+      )
+
+      assert op.data["HomeDirectoryType"] == "LOGICAL"
+    end
+
+    test "formats tags correctly" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        tags: [
+          %{key: "Environment", value: "Production"},
+          %{key: "Team", value: "Engineering"}
+        ]
+      )
+
+      assert op.data["Tags"] == [
+        %{"Key" => "Environment", "Value" => "Production"},
+        %{"Key" => "Team", "Value" => "Engineering"}
+      ]
+    end
+
+    test "handles multiple options together" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        home_directory: "/bucket/user",
+        home_directory_type: :path,
+        ssh_public_key_body: "ssh-rsa AAAAB3...",
+        tags: [%{key: "Env", value: "Prod"}]
+      )
+
+      assert op.data["HomeDirectory"] == "/bucket/user"
+      assert op.data["HomeDirectoryType"] == "PATH"
+      assert op.data["SshPublicKeyBody"] == "ssh-rsa AAAAB3..."
+      assert op.data["Tags"] == [%{"Key" => "Env", "Value" => "Prod"}]
+    end
+  end
+
   describe "integration with ExAws" do
     test "operation can be passed to ExAws functions" do
       op = Transfer.describe_user("s-test", "user")
