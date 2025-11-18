@@ -23,7 +23,9 @@ defmodule ExAwsTransfer.MixProject do
   defp deps do
     [
       {:ex_aws, "~> 2.1"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      # Runtime false deps
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -43,4 +45,5 @@ defmodule ExAwsTransfer.MixProject do
       files: ~w(lib mix.exs README* LICENSE* CHANGELOG*),
       maintainers: ["Alex Kibler"],
     ]
+  end
 end
