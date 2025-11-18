@@ -105,6 +105,26 @@ defmodule ExAws.Transfer do
 
   https://docs.aws.amazon.com/transfer/latest/APIReference/API_CreateUser.html
   """
+  @type create_user_opts :: [
+    {:home_directory, binary()},
+    {:home_directory_type, :path | :logical},
+    {:home_directory_mappings, [map()]},
+    {:policy, binary()},
+    {:posix_profile, map()},
+    {:ssh_public_key_body, binary()},
+    {:tags, [map()]}
+  ]
+  @spec create_user(
+    server_id :: binary(),
+    user_name :: binary(),
+    role :: binary()
+  ) :: ExAws.Operation.JSON.t()
+  @spec create_user(
+    server_id :: binary(),
+    user_name :: binary(),
+    role :: binary(),
+    opts :: create_user_opts
+  ) :: ExAws.Operation.JSON.t()
   def create_user(server_id, user_name, role, opts \\ []) do
     params =
       opts
@@ -117,6 +137,78 @@ defmodule ExAws.Transfer do
       })
 
     request(:create_user, params)
+  end
+
+  @doc """
+  Updates properties for a user on a file transfer protocol-enabled server.
+
+  ## Parameters
+
+  * `server_id` - Server ID (like `s-1234567890abcdef0`)
+  * `user_name` - The name of the user to update
+
+  ## Options
+
+  * `:role` - The ARN of the IAM role that controls the user's access
+  * `:home_directory` - The landing directory for the user
+  * `:home_directory_type` - Either `:path` or `:logical`
+  * `:home_directory_mappings` - List of logical directory mappings
+  * `:policy` - A session policy to scope down user access
+  * `:posix_profile` - Map with `:uid`, `:gid`, and optional `:secondary_gids`
+
+  ## Examples
+
+      # Update user's role
+      iex> ExAws.Transfer.update_user(
+      ...>   "s-1234567890abcdef0",
+      ...>   "existinguser",
+      ...>   role: "arn:aws:iam::123456789012:role/new-role"
+      ...> )
+      ...> |> ExAws.request()
+      {:ok, %{"ServerId" => "s-1234567890abcdef0", "UserName" => "existinguser"}}
+
+      # Update home directory
+      iex> ExAws.Transfer.update_user(
+      ...>   "s-1234567890abcdef0",
+      ...>   "existinguser",
+      ...>   home_directory: "/new-bucket/users/existinguser",
+      ...>   home_directory_type: :path
+      ...> )
+      ...> |> ExAws.request()
+      {:ok, %{"ServerId" => "s-1234567890abcdef0", "UserName" => "existinguser"}}
+
+  ## AWS API Documentation
+
+  https://docs.aws.amazon.com/transfer/latest/userguide/API_UpdateUser.html
+  """
+  @type update_user_opts :: [
+    {:role, binary()},
+    {:home_directory, binary()},
+    {:home_directory_type, :path | :logical},
+    {:home_directory_mappings, [map()]},
+    {:policy, binary()},
+    {:posix_profile, map()}
+  ]
+  @spec update_user(
+    server_id :: binary(),
+    user_name :: binary()
+  ) :: ExAws.Operation.JSON.t()
+  @spec update_user(
+    server_id :: binary(),
+    user_name :: binary(),
+    opts :: update_user_opts
+  ) :: ExAws.Operation.JSON.t()
+  def update_user(server_id, user_name, opts \\ []) do
+    params =
+      opts
+      |> format_opts()
+      |> pascalize_keys()
+      |> Map.merge(%{
+        "ServerId" => server_id,
+        "UserName" => user_name
+      })
+
+    request(:update_user, params)
   end
 
   # Private methods start here

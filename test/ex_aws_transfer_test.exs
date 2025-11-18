@@ -140,6 +140,85 @@ defmodule ExAws.TransferTest do
     end
   end
 
+  describe "update_user/2 and update_user/3" do
+    test "builds correct operation struct with required params only" do
+      op = Transfer.update_user("s-1234567890abcdef0", "existinguser")
+
+      assert %ExAws.Operation.JSON{} = op
+      assert op.service == :transfer
+      assert op.data["ServerId"] == "s-1234567890abcdef0"
+      assert op.data["UserName"] == "existinguser"
+    end
+
+    test "sets correct x-amz-target header" do
+      op = Transfer.update_user("s-abc123", "user")
+
+      assert {"x-amz-target", "TransferService.UpdateUser"} in op.headers
+    end
+
+    test "handles role option" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        role: "arn:aws:iam::123456789012:role/new-role"
+      )
+
+      assert op.data["Role"] == "arn:aws:iam::123456789012:role/new-role"
+    end
+
+    test "handles home_directory option" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        home_directory: "/new-bucket/users/user"
+      )
+
+      assert op.data["HomeDirectory"] == "/new-bucket/users/user"
+    end
+
+    test "pascalizes option keys" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        policy: "{\"Version\":\"2012-10-17\"}"
+      )
+
+      assert op.data["Policy"] == "{\"Version\":\"2012-10-17\"}"
+    end
+
+    test "converts home_directory_type atom to uppercase string" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        home_directory_type: :path
+      )
+
+      assert op.data["HomeDirectoryType"] == "PATH"
+
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        home_directory_type: :logical
+      )
+
+      assert op.data["HomeDirectoryType"] == "LOGICAL"
+    end
+
+    test "handles multiple options together" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        role: "arn:aws:iam::123456789012:role/new-role",
+        home_directory: "/bucket/user",
+        home_directory_type: :path
+      )
+
+      assert op.data["Role"] == "arn:aws:iam::123456789012:role/new-role"
+      assert op.data["HomeDirectory"] == "/bucket/user"
+      assert op.data["HomeDirectoryType"] == "PATH"
+    end
+  end
+
   describe "integration with ExAws" do
     test "operation can be passed to ExAws functions" do
       op = Transfer.describe_user("s-test", "user")
