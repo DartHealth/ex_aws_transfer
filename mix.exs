@@ -9,6 +9,11 @@ defmodule ExAwsTransfer.MixProject do
       start_permanent: Mix.env() == :prod,
       description: description(),
       deps: deps(),
+      dialyzer: [
+        plt_core_path: "priv/plts",
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+        halt_exit_status: true
+      ],
       package: package()
     ]
   end
