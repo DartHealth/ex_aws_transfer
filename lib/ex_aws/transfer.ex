@@ -6,6 +6,7 @@ defmodule ExAws.Transfer do
   @namespace "TransferService"
 
   @doc """
+  Deletes a user from a file transfer family server.
   ## Parameters
 
   * `server_id` - Server id (like s-1234567890abcdef0)
