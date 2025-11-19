@@ -9,10 +9,11 @@ defmodule ExAws.TransferTest do
 
       assert %ExAws.Operation.JSON{} = op
       assert op.service == :transfer
+
       assert op.data == %{
-        "ServerId" => "s-1234567890abcdef0",
-        "UserName" => "testuser"
-      }
+               "ServerId" => "s-1234567890abcdef0",
+               "UserName" => "testuser"
+             }
     end
 
     test "sets correct x-amz-target header" do
@@ -34,10 +35,11 @@ defmodule ExAws.TransferTest do
 
       assert %ExAws.Operation.JSON{} = op
       assert op.service == :transfer
+
       assert op.data == %{
-        "ServerId" => "s-1234567890abcdef0",
-        "UserName" => "testuser"
-      }
+               "ServerId" => "s-1234567890abcdef0",
+               "UserName" => "testuser"
+             }
     end
 
     test "sets correct x-amz-target header" do
@@ -50,16 +52,17 @@ defmodule ExAws.TransferTest do
       op = Transfer.delete_user("s-abc123", "myuser")
 
       assert {"content-type", "application/x-amz-json-1.1"} in op.headers
-      end
+    end
   end
 
   describe "create_user/3 and create_user/4" do
     test "builds correct operation struct with required params only" do
-      op = Transfer.create_user(
-        "s-1234567890abcdef0",
-        "newuser",
-        "arn:aws:iam::123456789012:role/my-role"
-      )
+      op =
+        Transfer.create_user(
+          "s-1234567890abcdef0",
+          "newuser",
+          "arn:aws:iam::123456789012:role/my-role"
+        )
 
       assert %ExAws.Operation.JSON{} = op
       assert op.service == :transfer
@@ -75,63 +78,68 @@ defmodule ExAws.TransferTest do
     end
 
     test "pascalizes option keys" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        ssh_public_key_body: "ssh-rsa AAAAB3..."
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          ssh_public_key_body: "ssh-rsa AAAAB3..."
+        )
 
       assert op.data["SshPublicKeyBody"] == "ssh-rsa AAAAB3..."
     end
 
     test "converts home_directory_type atom to uppercase string" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        home_directory_type: :path
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          home_directory_type: :path
+        )
 
       assert op.data["HomeDirectoryType"] == "PATH"
 
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        home_directory_type: :logical
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          home_directory_type: :logical
+        )
 
       assert op.data["HomeDirectoryType"] == "LOGICAL"
     end
 
     test "formats tags correctly" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        tags: [
-          %{key: "Environment", value: "Production"},
-          %{key: "Team", value: "Engineering"}
-        ]
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          tags: [
+            %{key: "Environment", value: "Production"},
+            %{key: "Team", value: "Engineering"}
+          ]
+        )
 
       assert op.data["Tags"] == [
-        %{"Key" => "Environment", "Value" => "Production"},
-        %{"Key" => "Team", "Value" => "Engineering"}
-      ]
+               %{"Key" => "Environment", "Value" => "Production"},
+               %{"Key" => "Team", "Value" => "Engineering"}
+             ]
     end
 
     test "handles multiple options together" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        home_directory: "/bucket/user",
-        home_directory_type: :path,
-        ssh_public_key_body: "ssh-rsa AAAAB3...",
-        tags: [%{key: "Env", value: "Prod"}]
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          home_directory: "/bucket/user",
+          home_directory_type: :path,
+          ssh_public_key_body: "ssh-rsa AAAAB3...",
+          tags: [%{key: "Env", value: "Prod"}]
+        )
 
       assert op.data["HomeDirectory"] == "/bucket/user"
       assert op.data["HomeDirectoryType"] == "PATH"
@@ -142,50 +150,53 @@ defmodule ExAws.TransferTest do
 
   describe "create_user/3 nested structures" do
     test "pascalizes posix_profile nested keys" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        posix_profile: %{
-          uid: 1000,
-          gid: 1000,
-          secondary_gids: [1001, 1002]
-        }
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          posix_profile: %{
+            uid: 1000,
+            gid: 1000,
+            secondary_gids: [1001, 1002]
+          }
+        )
 
       assert op.data["PosixProfile"] == %{
-        "Uid" => 1000,
-        "Gid" => 1000,
-        "SecondaryGids" => [1001, 1002]
-      }
+               "Uid" => 1000,
+               "Gid" => 1000,
+               "SecondaryGids" => [1001, 1002]
+             }
     end
 
     test "pascalizes home_directory_mappings nested structures" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        home_directory_mappings: [
-          %{entry: "/documents", target: "/bucket/docs", type: "DIRECTORY"},
-          %{entry: "/photos", target: "/bucket/photos"}
-        ]
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          home_directory_mappings: [
+            %{entry: "/documents", target: "/bucket/docs", type: "DIRECTORY"},
+            %{entry: "/photos", target: "/bucket/photos"}
+          ]
+        )
 
       assert op.data["HomeDirectoryMappings"] == [
-        %{"Entry" => "/documents", "Target" => "/bucket/docs", "Type" => "DIRECTORY"},
-        %{"Entry" => "/photos", "Target" => "/bucket/photos"}
-      ]
+               %{"Entry" => "/documents", "Target" => "/bucket/docs", "Type" => "DIRECTORY"},
+               %{"Entry" => "/photos", "Target" => "/bucket/photos"}
+             ]
     end
 
     test "handles deeply nested structures" do
-      op = Transfer.create_user(
-        "s-abc123",
-        "user",
-        "arn:aws:iam::123456789012:role/test",
-        posix_profile: %{uid: 1000, gid: 1000},
-        home_directory_mappings: [%{entry: "/", target: "/bucket"}],
-        tags: [%{key: "Env", value: "Test"}]
-      )
+      op =
+        Transfer.create_user(
+          "s-abc123",
+          "user",
+          "arn:aws:iam::123456789012:role/test",
+          posix_profile: %{uid: 1000, gid: 1000},
+          home_directory_mappings: [%{entry: "/", target: "/bucket"}],
+          tags: [%{key: "Env", value: "Test"}]
+        )
 
       assert op.data["PosixProfile"]["Uid"] == 1000
       assert op.data["HomeDirectoryMappings"] == [%{"Entry" => "/", "Target" => "/bucket"}]
@@ -210,61 +221,67 @@ defmodule ExAws.TransferTest do
     end
 
     test "handles role option" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        role: "arn:aws:iam::123456789012:role/new-role"
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          role: "arn:aws:iam::123456789012:role/new-role"
+        )
 
       assert op.data["Role"] == "arn:aws:iam::123456789012:role/new-role"
     end
 
     test "handles home_directory option" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        home_directory: "/new-bucket/users/user"
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          home_directory: "/new-bucket/users/user"
+        )
 
       assert op.data["HomeDirectory"] == "/new-bucket/users/user"
     end
 
     test "pascalizes option keys" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        policy: "{\"Version\":\"2012-10-17\"}"
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          policy: "{\"Version\":\"2012-10-17\"}"
+        )
 
       assert op.data["Policy"] == "{\"Version\":\"2012-10-17\"}"
     end
 
     test "converts home_directory_type atom to uppercase string" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        home_directory_type: :path
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          home_directory_type: :path
+        )
 
       assert op.data["HomeDirectoryType"] == "PATH"
 
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        home_directory_type: :logical
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          home_directory_type: :logical
+        )
 
       assert op.data["HomeDirectoryType"] == "LOGICAL"
     end
 
     test "handles multiple options together" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        role: "arn:aws:iam::123456789012:role/new-role",
-        home_directory: "/bucket/user",
-        home_directory_type: :path
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          role: "arn:aws:iam::123456789012:role/new-role",
+          home_directory: "/bucket/user",
+          home_directory_type: :path
+        )
 
       assert op.data["Role"] == "arn:aws:iam::123456789012:role/new-role"
       assert op.data["HomeDirectory"] == "/bucket/user"
@@ -274,35 +291,37 @@ defmodule ExAws.TransferTest do
 
   describe "update_user/2 nested structures" do
     test "pascalizes posix_profile nested keys" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        posix_profile: %{
-          uid: 2000,
-          gid: 2000,
-          secondary_gids: [2001, 2002, 2003]
-        }
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          posix_profile: %{
+            uid: 2000,
+            gid: 2000,
+            secondary_gids: [2001, 2002, 2003]
+          }
+        )
 
       assert op.data["PosixProfile"] == %{
-        "Uid" => 2000,
-        "Gid" => 2000,
-        "SecondaryGids" => [2001, 2002, 2003]
-      }
+               "Uid" => 2000,
+               "Gid" => 2000,
+               "SecondaryGids" => [2001, 2002, 2003]
+             }
     end
 
     test "pascalizes home_directory_mappings nested structures" do
-      op = Transfer.update_user(
-        "s-abc123",
-        "user",
-        home_directory_mappings: [
-          %{entry: "/", target: "/new-bucket/user"}
-        ]
-      )
+      op =
+        Transfer.update_user(
+          "s-abc123",
+          "user",
+          home_directory_mappings: [
+            %{entry: "/", target: "/new-bucket/user"}
+          ]
+        )
 
       assert op.data["HomeDirectoryMappings"] == [
-        %{"Entry" => "/", "Target" => "/new-bucket/user"}
-      ]
+               %{"Entry" => "/", "Target" => "/new-bucket/user"}
+             ]
     end
   end
 

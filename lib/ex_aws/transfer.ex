@@ -107,25 +107,25 @@ defmodule ExAws.Transfer do
   https://docs.aws.amazon.com/transfer/latest/APIReference/API_CreateUser.html
   """
   @type create_user_opts :: [
-    {:home_directory, binary()},
-    {:home_directory_type, :path | :logical},
-    {:home_directory_mappings, [map()]},
-    {:policy, binary()},
-    {:posix_profile, map()},
-    {:ssh_public_key_body, binary()},
-    {:tags, [map()]}
-  ]
+          {:home_directory, binary()},
+          {:home_directory_type, :path | :logical},
+          {:home_directory_mappings, [map()]},
+          {:policy, binary()},
+          {:posix_profile, map()},
+          {:ssh_public_key_body, binary()},
+          {:tags, [map()]}
+        ]
   @spec create_user(
-    server_id :: binary(),
-    user_name :: binary(),
-    role :: binary()
-  ) :: ExAws.Operation.JSON.t()
+          server_id :: binary(),
+          user_name :: binary(),
+          role :: binary()
+        ) :: ExAws.Operation.JSON.t()
   @spec create_user(
-    server_id :: binary(),
-    user_name :: binary(),
-    role :: binary(),
-    opts :: create_user_opts
-  ) :: ExAws.Operation.JSON.t()
+          server_id :: binary(),
+          user_name :: binary(),
+          role :: binary(),
+          opts :: create_user_opts
+        ) :: ExAws.Operation.JSON.t()
   def create_user(server_id, user_name, role, opts \\ []) do
     params =
       opts
@@ -183,22 +183,22 @@ defmodule ExAws.Transfer do
   https://docs.aws.amazon.com/transfer/latest/userguide/API_UpdateUser.html
   """
   @type update_user_opts :: [
-    {:role, binary()},
-    {:home_directory, binary()},
-    {:home_directory_type, :path | :logical},
-    {:home_directory_mappings, [map()]},
-    {:policy, binary()},
-    {:posix_profile, map()}
-  ]
+          {:role, binary()},
+          {:home_directory, binary()},
+          {:home_directory_type, :path | :logical},
+          {:home_directory_mappings, [map()]},
+          {:policy, binary()},
+          {:posix_profile, map()}
+        ]
   @spec update_user(
-    server_id :: binary(),
-    user_name :: binary()
-  ) :: ExAws.Operation.JSON.t()
+          server_id :: binary(),
+          user_name :: binary()
+        ) :: ExAws.Operation.JSON.t()
   @spec update_user(
-    server_id :: binary(),
-    user_name :: binary(),
-    opts :: update_user_opts
-  ) :: ExAws.Operation.JSON.t()
+          server_id :: binary(),
+          user_name :: binary(),
+          opts :: update_user_opts
+        ) :: ExAws.Operation.JSON.t()
   def update_user(server_id, user_name, opts \\ []) do
     params =
       opts
@@ -257,11 +257,12 @@ defmodule ExAws.Transfer do
   defp normalize_home_directory_type(opts), do: opts
 
   defp normalize_tags(%{tags: tags} = opts) when is_list(tags) do
-    normalized_tags = Enum.map(tags, fn
-      %{key: k, value: v} -> %{"Key" => k, "Value" => v}
-      %{"Key" => _, "Value" => _} = tag -> tag
-      tag -> tag
-    end)
+    normalized_tags =
+      Enum.map(tags, fn
+        %{key: k, value: v} -> %{"Key" => k, "Value" => v}
+        %{"Key" => _, "Value" => _} = tag -> tag
+        tag -> tag
+      end)
 
     Map.put(opts, :tags, normalized_tags)
   end

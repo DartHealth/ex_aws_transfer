@@ -49,7 +49,7 @@ defmodule ExAwsTransfer.MixProject do
         "GitHub" => "https://github.com/DartHealth/ex_aws_transfer"
       },
       files: ~w(lib mix.exs README* LICENSE* CHANGELOG*),
-      maintainers: ["Alex Kibler"],
+      maintainers: ["Alex Kibler"]
     ]
   end
 end
