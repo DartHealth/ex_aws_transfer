@@ -140,6 +140,59 @@ defmodule ExAws.TransferTest do
     end
   end
 
+  describe "create_user/3 nested structures" do
+    test "pascalizes posix_profile nested keys" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        posix_profile: %{
+          uid: 1000,
+          gid: 1000,
+          secondary_gids: [1001, 1002]
+        }
+      )
+
+      assert op.data["PosixProfile"] == %{
+        "Uid" => 1000,
+        "Gid" => 1000,
+        "SecondaryGids" => [1001, 1002]
+      }
+    end
+
+    test "pascalizes home_directory_mappings nested structures" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        home_directory_mappings: [
+          %{entry: "/documents", target: "/bucket/docs", type: "DIRECTORY"},
+          %{entry: "/photos", target: "/bucket/photos"}
+        ]
+      )
+
+      assert op.data["HomeDirectoryMappings"] == [
+        %{"Entry" => "/documents", "Target" => "/bucket/docs", "Type" => "DIRECTORY"},
+        %{"Entry" => "/photos", "Target" => "/bucket/photos"}
+      ]
+    end
+
+    test "handles deeply nested structures" do
+      op = Transfer.create_user(
+        "s-abc123",
+        "user",
+        "arn:aws:iam::123456789012:role/test",
+        posix_profile: %{uid: 1000, gid: 1000},
+        home_directory_mappings: [%{entry: "/", target: "/bucket"}],
+        tags: [%{key: "Env", value: "Test"}]
+      )
+
+      assert op.data["PosixProfile"]["Uid"] == 1000
+      assert op.data["HomeDirectoryMappings"] == [%{"Entry" => "/", "Target" => "/bucket"}]
+      assert op.data["Tags"] == [%{"Key" => "Env", "Value" => "Test"}]
+    end
+  end
+
   describe "update_user/2 and update_user/3" do
     test "builds correct operation struct with required params only" do
       op = Transfer.update_user("s-1234567890abcdef0", "existinguser")
@@ -216,6 +269,40 @@ defmodule ExAws.TransferTest do
       assert op.data["Role"] == "arn:aws:iam::123456789012:role/new-role"
       assert op.data["HomeDirectory"] == "/bucket/user"
       assert op.data["HomeDirectoryType"] == "PATH"
+    end
+  end
+
+  describe "update_user/2 nested structures" do
+    test "pascalizes posix_profile nested keys" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        posix_profile: %{
+          uid: 2000,
+          gid: 2000,
+          secondary_gids: [2001, 2002, 2003]
+        }
+      )
+
+      assert op.data["PosixProfile"] == %{
+        "Uid" => 2000,
+        "Gid" => 2000,
+        "SecondaryGids" => [2001, 2002, 2003]
+      }
+    end
+
+    test "pascalizes home_directory_mappings nested structures" do
+      op = Transfer.update_user(
+        "s-abc123",
+        "user",
+        home_directory_mappings: [
+          %{entry: "/", target: "/new-bucket/user"}
+        ]
+      )
+
+      assert op.data["HomeDirectoryMappings"] == [
+        %{"Entry" => "/", "Target" => "/new-bucket/user"}
+      ]
     end
   end
 

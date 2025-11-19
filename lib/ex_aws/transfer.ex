@@ -213,11 +213,21 @@ defmodule ExAws.Transfer do
 
   # Private methods start here
 
-  defp pascalize_keys(map) do
+  defp pascalize_keys(map) when is_map(map) do
     Map.new(map, fn {k, v} ->
-      {pascalize_key(k), v}
+      {pascalize_key(k), pascalize_value(v)}
     end)
   end
+
+  defp pascalize_value(list) when is_list(list) do
+    Enum.map(list, &pascalize_value/1)
+  end
+
+  defp pascalize_value(map) when is_map(map) do
+    pascalize_keys(map)
+  end
+
+  defp pascalize_value(value), do: value
 
   defp pascalize_key(key) when is_atom(key) do
     key |> Atom.to_string() |> pascalize_key()
