@@ -8,7 +8,13 @@ defmodule ExAwsTransfer.MixProject do
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       description: description(),
-      deps: deps()
+      deps: deps(),
+      dialyzer: [
+        plt_core_path: "priv/plts",
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
+        halt_exit_status: true
+      ],
+      package: package()
     ]
   end
 
@@ -23,7 +29,9 @@ defmodule ExAwsTransfer.MixProject do
   defp deps do
     [
       {:ex_aws, "~> 2.1"},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      # Runtime false deps
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -41,6 +49,7 @@ defmodule ExAwsTransfer.MixProject do
         "GitHub" => "https://github.com/DartHealth/ex_aws_transfer"
       },
       files: ~w(lib mix.exs README* LICENSE* CHANGELOG*),
-      maintainers: ["Alex Kibler"],
+      maintainers: ["Alex Kibler"]
     ]
+  end
 end
