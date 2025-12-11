@@ -28,7 +28,7 @@ defmodule ExAwsTransfer.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_aws, "~> 2.1"},
+      {:ex_aws, ">= 2.6.1 and < 3.0.0"},
       {:jason, "~> 1.2"},
       # Runtime false deps
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
